@@ -1,0 +1,8 @@
+chrome_profile_path: "/Users/lance/Library/Application Support/Google/Chrome/Default"
+course_url: "https://learn.deeplearning.ai/courses/claude-code-a-highly-agentic-coding-assistant/lesson/66b35/introduction"
+extension_id: "lmhkpmbekcpmknklioeibfkpmmfibljd"
+extension_popup_path: "content/popup.html"
+download_watch_dir: "~/Downloads"
+output_dir: "./downloads"
+download_timeout: 300
+page_load_wait: 10
