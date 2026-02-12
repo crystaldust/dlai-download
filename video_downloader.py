@@ -30,13 +30,13 @@ def trigger_download(driver, config):
             EC.presence_of_element_located((By.CSS_SELECTOR, "body"))
         )
         # Give the extension popup time to populate its download list
-        time.sleep(5)
+        time.sleep(2)
 
         # Look for download links/buttons in the popup
         # Video DownloadHelper typically shows a list of detected media
         # Try common selectors for the download action
         # download_buttons = driver.find_elements(By.CSS_SELECTOR, ".download-btn, .action-btn, a[download], button")
-        download_button = driver.find_elements(By.CSS_SELECTOR, ".action_download")
+        download_button = driver.find_elements(By.CSS_SELECTOR, "#action_download")
         if download_button:
             # Click the first available download option
             download_button.click()
