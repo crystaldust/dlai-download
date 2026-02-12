@@ -54,50 +54,22 @@ def trigger_download(driver, config):
     driver.get(original_url)
 
 
-def wait_for_download(watch_dir, timeout=300):
-    """Wait for a new file to appear in watch_dir and return its path once complete."""
+def wait_for_download(watch_dir, prefix, video_name, timeout=300):
+    """Wait for {prefix}_{video_name}.mp4 to appear in watch_dir."""
     watch_dir = os.path.expanduser(watch_dir)
-
-    # Snapshot existing files before download starts
-    existing = set(os.listdir(watch_dir))
+    expected_file = f"{prefix}__{video_name}.mp4"
+    file_path = os.path.join(watch_dir, expected_file)
 
     start_time = time.time()
-    new_file = None
-
     while time.time() - start_time < timeout:
-        current = set(os.listdir(watch_dir))
-        new_files = current - existing
-
-        # Filter out temp/partial download files
-        candidates = [
-            f for f in new_files
-            if not f.endswith((".crdownload", ".part", ".tmp", ".download"))
-        ]
-
-        if candidates:
-            new_file = candidates[0]
-            file_path = os.path.join(watch_dir, new_file)
-
-            # Wait for file size to stabilize (download complete)
-            prev_size = -1
-            stable_count = 0
-            while stable_count < 3:
-                try:
-                    curr_size = os.path.getsize(file_path)
-                except OSError:
-                    break
-                if curr_size == prev_size:
-                    stable_count += 1
-                else:
-                    stable_count = 0
-                prev_size = curr_size
-                time.sleep(1)
-
+        if os.path.exists(file_path):
+            print(f"  Found: {expected_file}")
             return file_path
-
         time.sleep(2)
 
-    raise TimeoutError(f"No new download appeared in {watch_dir} within {timeout}s")
+    raise TimeoutError(
+        f"{expected_file} did not appear in {watch_dir} within {timeout}s"
+    )
 
 
 def sanitize_filename(name):

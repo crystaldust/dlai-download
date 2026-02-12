@@ -41,6 +41,8 @@ def main():
         print("  Waiting for download to complete...")
         downloaded_file = wait_for_download(
             config["download_watch_dir"],
+            config["download_file_prefix"],
+            lesson["title"],
             config.get("download_timeout", 300),
         )
         copy_to_output(downloaded_file, config["output_dir"], lesson["index"], lesson["title"])
