@@ -24,23 +24,29 @@ def trigger_download(driver, config):
     # Navigate to extension popup in the same tab
     driver.get(popup_url)
 
-    # Wait for popup content to load
+    # Wait for popup content to load and click the download button.
+    # Video DownloadHelper uses nested shadow DOM:
+    #   <vbox id="media">
+    #     <com-media>         ← shadow host #1
+    #       #shadow-root
+    #         <com-media-discovered>  ← shadow host #2
+    #           #shadow-root
+    #             <button id="action_download">
     try:
         WebDriverWait(driver, 15).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "body"))
         )
         # Give the extension popup time to populate its download list
-        time.sleep(2)
+        time.sleep(3)
 
-        # Look for download links/buttons in the popup
-        # Video DownloadHelper typically shows a list of detected media
-        # Try common selectors for the download action
-        # download_buttons = driver.find_elements(By.CSS_SELECTOR, ".download-btn, .action-btn, a[download], button")
-        download_button = driver.find_elements(By.CSS_SELECTOR, "#action_download")
-        if download_button:
-            # Click the first available download option
-            download_button.click()
-            time.sleep(2)
+        # Pierce through two levels of shadow DOM to reach the download button
+        media_el = driver.find_element(By.CSS_SELECTOR, "com-media")
+        shadow1 = media_el.shadow_root
+        discovered_el = shadow1.find_element(By.CSS_SELECTOR, "com-media-discovered")
+        shadow2 = discovered_el.shadow_root
+        download_button = shadow2.find_element(By.CSS_SELECTOR, "#action_download")
+        download_button.click()
+        time.sleep(2)
     except Exception as e:
         print(f"  Warning: Extension popup interaction failed: {e}")
 
