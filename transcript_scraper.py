@@ -18,7 +18,7 @@ def open_transcript_panel(driver):
         # Wait for the transcript content to load
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(
-                (By.CSS_SELECTOR, "[data-testid='transcript-panel'], .transcript-panel, .transcript-container")
+                (By.CSS_SELECTOR, "#panel-portal .flex-1.overflow-y-auto")
             )
         )
     except Exception as e:
@@ -30,70 +30,21 @@ def scrape_transcript(driver):
     """Scrape transcript entries from the open transcript panel.
 
     Returns a list of (timestamp_str, text) tuples.
-    The exact selectors may need adjustment based on the live DOM.
     """
+    container = driver.find_element(
+        By.CSS_SELECTOR, "#panel-portal .flex-1.overflow-y-auto"
+    )
+    entry_divs = container.find_elements(By.XPATH, "./div")
+
     entries = []
-
-    # Try multiple possible selector patterns for transcript entries
-    selectors = [
-        # Pattern: individual cue elements with time + text
-        "[data-testid='transcript-cue']",
-        ".transcript-cue",
-        ".transcript-entry",
-        ".transcript-line",
-        # Generic: any element inside the transcript panel that has a timestamp
-        "[data-transcript-time]",
-    ]
-
-    transcript_items = []
-    for sel in selectors:
-        transcript_items = driver.find_elements(By.CSS_SELECTOR, sel)
-        if transcript_items:
-            break
-
-    if transcript_items:
-        for item in transcript_items:
-            text = item.text.strip()
-            # Try to get timestamp from a data attribute
-            timestamp = item.get_attribute("data-transcript-time") or item.get_attribute("data-time")
-            if timestamp:
-                entries.append((timestamp, text))
-            elif "\n" in text:
-                # Format might be "0:00\nSome text here"
-                parts = text.split("\n", 1)
-                entries.append((parts[0].strip(), parts[1].strip()))
-            else:
-                entries.append(("", text))
-    else:
-        # Fallback: try to get all text from the transcript panel
-        panel = None
-        panel_selectors = [
-            "[data-testid='transcript-panel']",
-            ".transcript-panel",
-            ".transcript-container",
-            "[aria-label='Transcript']",
-        ]
-        for sel in panel_selectors:
-            panels = driver.find_elements(By.CSS_SELECTOR, sel)
-            if panels:
-                panel = panels[0]
-                break
-
-        if panel:
-            # Try to find timestamp-text pairs within the panel
-            # Look for elements that contain timestamps (e.g., "0:00", "1:23")
-            all_elements = panel.find_elements(By.CSS_SELECTOR, "button, span, div, p")
-            current_time = None
-            for el in all_elements:
-                text = el.text.strip()
-                if not text:
-                    continue
-                # Check if this looks like a timestamp (e.g., "0:00", "12:34")
-                if re.match(r"^\d{1,2}:\d{2}$", text):
-                    current_time = text
-                elif current_time is not None:
-                    entries.append((current_time, text))
-                    current_time = None
+    for div in entry_divs:
+        try:
+            timestamp = div.find_element(By.CSS_SELECTOR, "button").text.strip()
+            text = div.find_element(By.CSS_SELECTOR, "span").text.strip()
+        except Exception:
+            continue
+        if timestamp and text:
+            entries.append((timestamp, text))
 
     return entries
 
