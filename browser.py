@@ -54,10 +54,12 @@ def setup_browser(config):
     _check_version_compatibility(config)
 
     options = Options()
-    options.add_argument(f"--user-data-dir={config['chrome_profile_path']}")
+    options.add_argument(f"--user-data-dir={config['chrome_user_data_dir']}")
+    options.add_argument(f"--profile-directory={config.get('chrome_profile_dir', 'Default')}")
     # Disable the "Chrome is being controlled by automated software" bar
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option("useAutomationExtension", False)
+    options.add_argument("--no-sandbox")
     # Keep the browser open if the script crashes
     options.add_experimental_option("detach", True)
 

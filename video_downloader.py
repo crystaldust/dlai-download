@@ -9,15 +9,15 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 def trigger_download(driver, config):
-    """Open the Video DownloadHelper extension popup and trigger a download."""
+    """Open the Video DownloadHelper extension popup in the current tab and trigger a download."""
     extension_id = config["extension_id"]
     popup_path = config["extension_popup_path"]
     popup_url = f"chrome-extension://{extension_id}/{popup_path}"
 
-    original_window = driver.current_window_handle
+    # Remember the current page URL so we can navigate back
+    original_url = driver.current_url
 
-    # Open extension popup in a new tab
-    driver.switch_to.new_window("tab")
+    # Navigate to extension popup in the same tab
     driver.get(popup_url)
 
     # Wait for popup content to load
@@ -31,17 +31,17 @@ def trigger_download(driver, config):
         # Look for download links/buttons in the popup
         # Video DownloadHelper typically shows a list of detected media
         # Try common selectors for the download action
-        download_buttons = driver.find_elements(By.CSS_SELECTOR, ".download-btn, .action-btn, a[download], button")
-        if download_buttons:
+        # download_buttons = driver.find_elements(By.CSS_SELECTOR, ".download-btn, .action-btn, a[download], button")
+        download_button = driver.find_elements(By.CSS_SELECTOR, ".action_download")
+        if download_button:
             # Click the first available download option
-            download_buttons[0].click()
+            download_button.click()
             time.sleep(2)
     except Exception as e:
         print(f"  Warning: Extension popup interaction failed: {e}")
 
-    # Close extension tab, switch back
-    driver.close()
-    driver.switch_to.window(original_window)
+    # Navigate back to the original course page
+    driver.get(original_url)
 
 
 def wait_for_download(watch_dir, timeout=300):
