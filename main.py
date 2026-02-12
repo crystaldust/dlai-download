@@ -1,8 +1,10 @@
+import os
+
 import yaml
 
 from browser import setup_browser
 from course_navigator import get_lesson_list, is_video_lesson, click_lesson
-from video_downloader import trigger_download, wait_for_download, copy_to_output
+from video_downloader import trigger_download, wait_for_download, copy_to_output, output_path
 from transcript_scraper import open_transcript_panel, scrape_transcript, to_srt, save_srt
 
 
@@ -33,19 +35,22 @@ def main():
 
         print(f"\nProcessing: {lesson['index']}. {lesson['title']}")
 
-        click_lesson(driver, lesson, config.get("page_load_wait", 10))
+        if os.path.exists(output_path(config["output_dir"], lesson["index"], lesson["title"])):
+            print("  Already downloaded, skipping")
+        else:
+            click_lesson(driver, lesson, config.get("page_load_wait", 10))
 
-        # Download video via extension
-        print("  Triggering download via extension...")
-        trigger_download(driver, config)
-        print("  Waiting for download to complete...")
-        downloaded_file = wait_for_download(
-            config["download_watch_dir"],
-            config["download_file_prefix"],
-            lesson["title"],
-            config.get("download_timeout", 300),
-        )
-        copy_to_output(downloaded_file, config["output_dir"], lesson["index"], lesson["title"])
+            # Download video via extension
+            print("  Triggering download via extension...")
+            trigger_download(driver, config)
+            print("  Waiting for download to complete...")
+            downloaded_file = wait_for_download(
+                config["download_watch_dir"],
+                config["download_file_prefix"],
+                lesson["title"],
+                config.get("download_timeout", 300),
+            )
+            copy_to_output(downloaded_file, config["output_dir"], lesson["index"], lesson["title"])
 
         # Scrape transcript
         print("  Scraping transcript...")

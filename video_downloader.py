@@ -79,13 +79,17 @@ def sanitize_filename(name):
     return name.strip("_")
 
 
+def output_path(output_dir, index, lesson_title, ext=".mp4"):
+    """Return the expected output file path for a lesson."""
+    safe_title = sanitize_filename(lesson_title)
+    return os.path.join(output_dir, f"{index:02d}_{safe_title}{ext}")
+
+
 def copy_to_output(src_path, output_dir, index, lesson_title):
     """Copy downloaded file to the output directory with a clean name."""
     os.makedirs(output_dir, exist_ok=True)
     ext = os.path.splitext(src_path)[1]
-    safe_title = sanitize_filename(lesson_title)
-    dest_name = f"{index:02d}_{safe_title}{ext}"
-    dest_path = os.path.join(output_dir, dest_name)
+    dest_path = output_path(output_dir, index, lesson_title, ext)
     shutil.copy2(src_path, dest_path)
     print(f"  Copied to: {dest_path}")
     return dest_path
