@@ -1,9 +1,19 @@
+browser: "firefox"                # "chrome" or "firefox"
+
+# Chrome settings
 chrome_user_data_dir: "/Users/lance/Library/Application Support/Google/Chrome"
 chrome_profile_dir: "Default"
-chrome_binary_path: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"      # e.g. "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-chromedriver_path: "/Users/lance/Downloads/chromedriver-mac-arm64/chromedriver"        # e.g. "/usr/local/bin/chromedriver"
+chrome_binary_path: ""            # optional, e.g. "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+chromedriver_path: ""             # optional, e.g. "/usr/local/bin/chromedriver"
+chrome_extension_id: "lmhkpmbekcpmknklioeibfkpmmfibljd"  # Video DownloadHelper Chrome extension ID
+
+# Firefox settings
+firefox_profile_path: "/Users/lance/Library/Application Support/Firefox/Profiles/qf5j5k02.default-release"
+firefox_binary_path: "/Applications/Firefox.app/Contents/MacOS/firefox"
+geckodriver_path: "/Users/lance/Downloads/geckodriver"
+firefox_extension_id: "66de4938-4732-4da4-ad95-15aa10bfa7c4"  # Video DownloadHelper Firefox extension ID
+
 course_url: "https://learn.deeplearning.ai/courses/claude-code-a-highly-agentic-coding-assistant/lesson/66b35/introduction"
-extension_id: "lmjnegcaeklhafolokijcfjliaokphfk"
 extension_popup_path: "content/popup.html"
 download_watch_dir: "~/Downloads"
 output_dir: "./downloads"

@@ -10,9 +10,13 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def trigger_download(driver, config):
     """Open the Video DownloadHelper extension popup in the current tab and trigger a download."""
-    extension_id = config["extension_id"]
-    popup_path = config["extension_popup_path"]
-    popup_url = f"chrome-extension://{extension_id}/{popup_path}"
+    browser = config.get("browser", "chrome").lower()
+    if browser == "chrome":
+        extension_id = config["chrome_extension_id"]
+        popup_url = f"chrome-extension://{extension_id}/{config['extension_popup_path']}"
+    else:
+        extension_id = config["firefox_extension_id"]
+        popup_url = f"moz-extension://{extension_id}/{config['extension_popup_path']}"
 
     # Remember the current page URL so we can navigate back
     original_url = driver.current_url
