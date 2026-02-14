@@ -51,13 +51,14 @@ def trigger_download(driver, config):
         print(f"  Warning: Extension popup interaction failed: {e}")
 
     # Navigate back to the original course page
-    driver.get(original_url)
+    # driver.get(original_url)
+    return original_url
 
 
 def wait_for_download(watch_dir, prefix, video_name, timeout=300):
     """Wait for {prefix}_{video_name}.mp4 to appear in watch_dir."""
     watch_dir = os.path.expanduser(watch_dir)
-    expected_file = f"{prefix}__{video_name}.mp4"
+    expected_file = f"{prefix}__{sanitize_filename(video_name)}.mp4"
     file_path = os.path.join(watch_dir, expected_file)
 
     start_time = time.time()

@@ -42,7 +42,7 @@ def main():
 
             # Download video via extension
             print("  Triggering download via extension...")
-            trigger_download(driver, config)
+            original_url = trigger_download(driver, config)
             print("  Waiting for download to complete...")
             downloaded_file = wait_for_download(
                 config["download_watch_dir"],
@@ -51,7 +51,7 @@ def main():
                 config.get("download_timeout", 300),
             )
             copy_to_output(downloaded_file, config["output_dir"], lesson["index"], lesson["title"])
-
+            driver.get(original_url)
         # Scrape transcript
         print("  Scraping transcript...")
         try:
