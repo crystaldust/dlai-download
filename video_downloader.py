@@ -60,7 +60,7 @@ def wait_for_download(watch_dir, prefix, video_name, timeout=300):
     watch_dir = os.path.expanduser(watch_dir)
     expected_file = f"{prefix}__{sanitize_filename(video_name)}.mp4"
     file_path = os.path.join(watch_dir, expected_file)
-
+    print(f'Checking if {file_path} exists')
     start_time = time.time()
     while time.time() - start_time < timeout:
         if os.path.exists(file_path):
@@ -75,13 +75,14 @@ def wait_for_download(watch_dir, prefix, video_name, timeout=300):
 
 def sanitize_filename(name):
     """Remove or replace characters that are invalid in filenames."""
-    name = re.sub(r'[<>:"/\\|?*]', "_", name)
-    name = re.sub(r"\s+", "_", name)
-    return name.strip("_")
+    name = re.sub(r'[<>:"/\\|?*&]', "", name)
+    name = re.sub(r"\s+", " ", name)
+    # return name.strip("_")
+    return name
 
 
-def output_path(output_dir, index, lesson_title, ext=".mp4"):
-    """Return the expected output file path for a lesson."""
+def dest_path(output_dir, index, lesson_title, ext=".mp4"):
+    """Return the destination file path for a lesson."""
     safe_title = sanitize_filename(lesson_title)
     return os.path.join(output_dir, f"{index:02d}_{safe_title}{ext}")
 
@@ -90,7 +91,7 @@ def copy_to_output(src_path, output_dir, index, lesson_title):
     """Copy downloaded file to the output directory with a clean name."""
     os.makedirs(output_dir, exist_ok=True)
     ext = os.path.splitext(src_path)[1]
-    dest_path = output_path(output_dir, index, lesson_title, ext)
-    shutil.copy2(src_path, dest_path)
-    print(f"  Copied to: {dest_path}")
-    return dest_path
+    dst = dest_path(output_dir, index, lesson_title, ext)
+    shutil.copy2(src_path, dst)
+    print(f"  Copied to: {dst}")
+    return dst

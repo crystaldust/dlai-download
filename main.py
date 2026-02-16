@@ -4,8 +4,8 @@ import yaml
 
 from browser import setup_browser
 from course_navigator import get_lesson_list, is_video_lesson, click_lesson
-from video_downloader import trigger_download, wait_for_download, copy_to_output, output_path
-from transcript_scraper import open_transcript_panel, scrape_transcript, to_srt, save_srt
+from transcript_scraper import open_transcript_panel, scrape_transcript, to_srt, save_srt, srt_output_path
+from video_downloader import trigger_download, wait_for_download, copy_to_output, dest_path
 
 
 def load_config(path="config.yaml"):
@@ -34,8 +34,7 @@ def main():
             continue
 
         print(f"\nProcessing: {lesson['index']}. {lesson['title']}")
-
-        if os.path.exists(output_path(config["output_dir"], lesson["index"], lesson["title"])):
+        if os.path.exists(dest_path(config["output_dir"], lesson["index"], lesson["title"])):
             print("  Already downloaded, skipping")
         else:
             click_lesson(driver, lesson, config.get("page_load_wait", 10))
@@ -52,7 +51,12 @@ def main():
             )
             copy_to_output(downloaded_file, config["output_dir"], lesson["index"], lesson["title"])
             driver.get(original_url)
+
         # Scrape transcript
+        if os.path.exists(srt_output_path(config["output_dir"], lesson["index"], lesson["title"])):
+            print("  Subtitle already exists, skipping")
+            continue
+
         print("  Scraping transcript...")
         try:
             open_transcript_panel(driver)

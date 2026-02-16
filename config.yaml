@@ -18,5 +18,5 @@ extension_popup_path: "content/sidebar.html"
 download_file_prefix: "VDH"         # downloaded file will be {prefix}_{video_name}.mp4
 download_watch_dir: "~/Downloads"
 output_dir: "./downloads"
-download_timeout: 300
+download_timeout: 800
 page_load_wait: 3

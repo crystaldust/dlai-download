@@ -1,5 +1,4 @@
 import os
-import re
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -99,19 +98,17 @@ def to_srt(entries):
     return "\n".join(srt_lines)
 
 
-def sanitize_filename(name):
-    """Remove or replace characters that are invalid in filenames."""
-    name = re.sub(r'[<>:"/\\|?*]', "_", name)
-    name = re.sub(r"\s+", "_", name)
-    return name.strip("_")
+def srt_output_path(output_dir, index, lesson_title):
+    """Return the expected SRT file path for a lesson."""
+    from video_downloader import sanitize_filename
+    safe_title = sanitize_filename(lesson_title)
+    return os.path.join(output_dir, f"{index:02d}_{safe_title}.srt")
 
 
 def save_srt(srt_content, output_dir, index, lesson_title):
     """Save SRT content to a file."""
     os.makedirs(output_dir, exist_ok=True)
-    safe_title = sanitize_filename(lesson_title)
-    filename = f"{index:02d}_{safe_title}.srt"
-    filepath = os.path.join(output_dir, filename)
+    filepath = srt_output_path(output_dir, index, lesson_title)
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(srt_content)
     print(f"  Saved transcript: {filepath}")
