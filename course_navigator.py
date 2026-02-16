@@ -47,7 +47,7 @@ def is_video_lesson(lesson):
 
 def click_lesson(driver, lesson, page_load_wait=10):
     """Click a sidebar lesson link and wait for the page to load."""
-    lesson["element"].click()
+    driver.get(lesson["url"])
     time.sleep(page_load_wait)
     # Wait for the video player or main content to be present
     try:

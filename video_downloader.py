@@ -55,16 +55,21 @@ def trigger_download(driver, config):
     return original_url
 
 
-def wait_for_download(watch_dir, prefix, video_name, timeout=300):
-    """Wait for {prefix}_{video_name}.mp4 to appear in watch_dir."""
+def download_path(watch_dir, prefix, video_name):
+    """Return the expected download file path for a video."""
     watch_dir = os.path.expanduser(watch_dir)
     expected_file = f"{prefix}__{sanitize_filename(video_name)}.mp4"
-    file_path = os.path.join(watch_dir, expected_file)
+    return os.path.join(watch_dir, expected_file)
+
+
+def wait_for_download(watch_dir, prefix, video_name, timeout=300):
+    """Wait for {prefix}_{video_name}.mp4 to appear in watch_dir."""
+    file_path = download_path(watch_dir, prefix, video_name)
     print(f'Checking if {file_path} exists')
     start_time = time.time()
     while time.time() - start_time < timeout:
         if os.path.exists(file_path):
-            print(f"  Found: {expected_file}")
+            print(f"  Found: {file_path}")
             return file_path
         time.sleep(2)
 
@@ -75,7 +80,7 @@ def wait_for_download(watch_dir, prefix, video_name, timeout=300):
 
 def sanitize_filename(name):
     """Remove or replace characters that are invalid in filenames."""
-    name = re.sub(r'[<>:"/\\|?*&]', "", name)
+    name = re.sub(r'[<>:"/\\|?*&,]', "", name)
     name = re.sub(r"\s+", " ", name)
     # return name.strip("_")
     return name

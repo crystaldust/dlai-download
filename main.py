@@ -5,7 +5,7 @@ import yaml
 from browser import setup_browser
 from course_navigator import get_lesson_list, is_video_lesson, click_lesson
 from transcript_scraper import open_transcript_panel, scrape_transcript, to_srt, save_srt, srt_output_path
-from video_downloader import trigger_download, wait_for_download, copy_to_output, dest_path
+from video_downloader import trigger_download, wait_for_download, copy_to_output, dest_path, download_path
 
 
 def load_config(path="config.yaml"):
@@ -37,20 +37,29 @@ def main():
         if os.path.exists(dest_path(config["output_dir"], lesson["index"], lesson["title"])):
             print("  Already downloaded, skipping")
         else:
-            click_lesson(driver, lesson, config.get("page_load_wait", 10))
-
-            # Download video via extension
-            print("  Triggering download via extension...")
-            original_url = trigger_download(driver, config)
-            print("  Waiting for download to complete...")
-            downloaded_file = wait_for_download(
+            dl_path = download_path(
                 config["download_watch_dir"],
                 config["download_file_prefix"],
                 lesson["title"],
-                config.get("download_timeout", 300),
             )
-            copy_to_output(downloaded_file, config["output_dir"], lesson["index"], lesson["title"])
-            driver.get(original_url)
+            if os.path.exists(dl_path):
+                print(f"  Found in download dir: {dl_path}")
+                copy_to_output(dl_path, config["output_dir"], lesson["index"], lesson["title"])
+            else:
+                click_lesson(driver, lesson, config.get("page_load_wait", 10))
+
+                # Download video via extension
+                print("  Triggering download via extension...")
+                original_url = trigger_download(driver, config)
+                print("  Waiting for download to complete...")
+                downloaded_file = wait_for_download(
+                    config["download_watch_dir"],
+                    config["download_file_prefix"],
+                    lesson["title"],
+                    config.get("download_timeout", 300),
+                )
+                copy_to_output(downloaded_file, config["output_dir"], lesson["index"], lesson["title"])
+                driver.get(original_url)
 
         # Scrape transcript
         if os.path.exists(srt_output_path(config["output_dir"], lesson["index"], lesson["title"])):
